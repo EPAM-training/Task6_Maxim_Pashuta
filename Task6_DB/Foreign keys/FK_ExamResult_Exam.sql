@@ -1,0 +1,4 @@
+﻿ALTER TABLE [dbo].[ExamResult]  
+WITH CHECK ADD  CONSTRAINT [FK_ExamResult_Exam] FOREIGN KEY([ExamID])
+REFERENCES [dbo].[Exam] ([ID])
+ON DELETE SET NULL

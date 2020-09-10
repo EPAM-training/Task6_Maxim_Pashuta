@@ -1,0 +1,4 @@
+﻿ALTER TABLE [dbo].[Student]  
+WITH CHECK ADD  CONSTRAINT [FK_Student_Group] FOREIGN KEY([GroupID])
+REFERENCES [dbo].[Group] ([ID])
+ON DELETE SET NULL

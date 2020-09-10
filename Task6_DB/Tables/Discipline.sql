@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[Discipline]
+(
+	[ID] INT PRIMARY KEY NOT NULL,
+	[Name] NVARCHAR(max) NOT NULL
+)
