@@ -1,17 +1,16 @@
-﻿using EPAM_Task6.DatabaseWork;
-using EPAM_Task6.ORM;
+﻿using EPAM_Task6.ORM;
+using EPAM_Task6.Reports;
 using EPAM_Task6.Tables;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace EPAM_Task6_Test.DatabaseWorkTest
+namespace EPAM_Task6_Test.ReportTest
 {
-    /// <summary>
-    /// Class for testing class WorkWithGroupTable.
-    /// </summary>
-    public class WorkWithGroupTableTest
+    public class ReportDataTest
     {
         private CustomORM _orm;
+        private Group _group;
 
         /// <summary>
         /// The method initializes objects for testing.
@@ -20,22 +19,18 @@ namespace EPAM_Task6_Test.DatabaseWorkTest
         public void Setup()
         {
             _orm = CustomORM.Instance;
+            _group = _orm.Groups.First();
+        }
 
-            foreach (Session session in _orm.Sessions)
-            {
-                DatabaseRelations.LoadRelationSessionGroup(session, _orm.Groups);
-                DatabaseRelations.LoadRelationGroupStudent(session.Group, _orm.Students);
+        /// <summary>
+        /// The method tests the method GetBadStudentList.
+        /// </summary>
+        [Test]
+        public void Test_GetBadStudentList()
+        {
+            List<Student> result = ReportData.GetBadStudentList(_group.Students);
 
-                foreach (Student student in session.Group.Students)
-                {
-                    DatabaseRelations.LoadRelationStudentExamResult(student, _orm.ExamResults);
-
-                    foreach (ExamResult examResult in student.ExamResults)
-                    {
-                        DatabaseRelations.LoadRelationExamResultExam(examResult, _orm.Exams);
-                    }
-                }
-            }
+            CollectionAssert.IsNotEmpty(result);
         }
 
         /// <summary>
@@ -46,7 +41,7 @@ namespace EPAM_Task6_Test.DatabaseWorkTest
         {
             Session session = _orm.Sessions.First();
 
-            double result = WorkWithGroupTable.GetAverageMarkByGroup(session.ID, session.Group);
+            double result = ReportData.GetAverageMarkByGroup(session.ID, session.Group);
             double actualResult = 5;
 
             Assert.AreEqual(result, actualResult);
@@ -60,7 +55,7 @@ namespace EPAM_Task6_Test.DatabaseWorkTest
         {
             Session session = _orm.Sessions.First();
 
-            double result = WorkWithGroupTable.GetMaxMarkByGroup(session.ID, session.Group);
+            double result = ReportData.GetMaxMarkByGroup(session.ID, session.Group);
             double actualResult = 8;
 
             Assert.AreEqual(result, actualResult);
@@ -74,7 +69,7 @@ namespace EPAM_Task6_Test.DatabaseWorkTest
         {
             Session session = _orm.Sessions.First();
 
-            double result = WorkWithGroupTable.GetMinMarkByGroup(session.ID, session.Group);
+            double result = ReportData.GetMinMarkByGroup(session.ID, session.Group);
             double actualResult = 2;
 
             Assert.AreEqual(result, actualResult);

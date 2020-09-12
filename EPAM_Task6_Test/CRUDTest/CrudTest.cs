@@ -12,7 +12,6 @@ namespace EPAM_Task6_Test.CRUDTest
     public class CrudTest
     {
         private SqlConnection _sqlConnection;
-        private Student _deletedStudent;
 
         /// <summary>
         /// The method initializes objects for testing.
@@ -22,15 +21,6 @@ namespace EPAM_Task6_Test.CRUDTest
         {
             string connectionString = @"Data Source=USER-PC\ACCELERATOR;Initial Catalog=Session_DB;Integrated Security=True";
             _sqlConnection = new SqlConnection(connectionString);
-
-            _deletedStudent = new Student()
-            {
-                ID = 7,
-                FullName = "Avseeva Eva Eleseevna",
-                Gender = "Woman",
-                Birthdate = new DateTime(2001, 4, 18),
-                GroupID = 1
-            };
         }
 
         /// <summary>
@@ -107,12 +97,20 @@ namespace EPAM_Task6_Test.CRUDTest
         public void Delete_WhenObjectExists_DeleteObject()
         {
             Crud<Student> crud = new Crud<Student>(_sqlConnection);
-            crud.Insert(_deletedStudent);
-            int id = 7;
+            var student = new Student()
+            {
+                ID = 7,
+                FullName = "Avseeva Eva Eleseevna",
+                Gender = "Woman",
+                Birthdate = new DateTime(2001, 4, 18),
+                GroupID = 1
+            };
 
-            crud.Delete(id);
+            crud.Insert(student);
 
-            Student result = crud.Read(id);
+            crud.Delete(student.ID);
+
+            Student result = crud.Read(student.ID);
 
             Assert.IsNull(result);
         }

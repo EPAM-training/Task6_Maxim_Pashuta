@@ -17,7 +17,7 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateSessionReport_WhenColumnNumberExists_WriteSessionResult()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new1.xls";
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new1.xlsx";
             int sessionNumber = 1;
             int columnNumber = 2;
 
@@ -38,9 +38,9 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateSessionReport_WhenColumnNumberNotExists_ThrowsColumnNumberException()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new1.xls";
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new1.xlsx";
             int sessionNumber = 2;
-            int columnNumber = 5;
+            int columnNumber = 4;
 
             Assert.That(() => Report.GenerateSessionReport(sessionNumber, filePath, TypeSort.Ascending, columnNumber), Throws.TypeOf<ColumnNumberException>());
         }
@@ -51,8 +51,8 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateAllSessionReports_WhenColumnNumberExists_WriteAllSessionResults()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new2.xls";
-            int columnNumber = 2;
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new2.xlsx";
+            int columnNumber = 1;
 
             Report.GenerateAllSessionReports(filePath, TypeSort.Descending, columnNumber);
 
@@ -71,7 +71,7 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateAllSessionReports_WhenColumnNumberNotExists_ThrowsColumnNumberException()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new2.xls";
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new2.xlsx";
             int columnNumber = -1;
 
             Assert.That(() => Report.GenerateAllSessionReports(filePath, TypeSort.Ascending, columnNumber), Throws.TypeOf<ColumnNumberException>());
@@ -83,8 +83,8 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateBadStudentsListByGroup_WhenColumnNumberExists_WriteBadStudentsListByGroup()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new3.xls";
-            string groupName = "IP-22";
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new3.xlsx";
+            string groupName = "IP-21";
             int columnNumber = 1;
 
             Report.GenerateBadStudentsListByGroup(groupName, filePath, TypeSort.Descending, columnNumber);
@@ -104,8 +104,8 @@ namespace EPAM_Task6_Test.Reports
         [Test]
         public void GenerateBadStudentsListByGroup_WhenColumnNumberNotExists_ThrowsColumnNumberException()
         {
-            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new1.xls";
-            string groupName = "IP-22";
+            string filePath = @"..\..\..\..\EPAM_Task6\Resources\new3.xlsx";
+            string groupName = "IP-21";
             int columnNumber = 6;
 
             Assert.That(() => Report.GenerateBadStudentsListByGroup(groupName, filePath, TypeSort.Ascending, columnNumber), Throws.TypeOf<ColumnNumberException>());

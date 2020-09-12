@@ -1,10 +1,10 @@
 ﻿using EPAM_Task6.CustomExceptions;
-using EPAM_Task6.DatabaseWork;
 using EPAM_Task6.Enums;
 using EPAM_Task6.ORM;
 using EPAM_Task6.Tables;
-using ExcelLibrary.SpreadSheet;
+using OfficeOpenXml;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace EPAM_Task6.Reports
@@ -23,8 +23,8 @@ namespace EPAM_Task6.Reports
         /// <param name="columnToSort">Column number to sort</param>
         public static void GenerateSessionReport(int sessionNumber, string filePath, TypeSort typeSort, int columnToSort)
         {
-            int leftBoard = 0;
-            int rightBoard = 2;
+            int leftBoard = 1;
+            int rightBoard = 3;
 
             // Checking for the existence of a column
             IsExistColumn(columnToSort, leftBoard, rightBoard);
@@ -32,54 +32,44 @@ namespace EPAM_Task6.Reports
             CustomORM orm = CustomORM.Instance;
             List<Session> sessions = orm.Sessions.Where(obj => obj.SemesterNumber == sessionNumber).ToList();
 
-            // Load relations:  Session_Group,  Group_Student,  Student_ExamResults
-            foreach (Session session in sessions)
-            {
-                DatabaseRelations.LoadRelationSessionGroup(session, orm.Groups);
-                DatabaseRelations.LoadRelationGroupStudent(session.Group, orm.Students);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-                foreach (Student student in session.Group.Students)
+            using (ExcelPackage excelPackage = new ExcelPackage())
+            {   
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("SessionReport");
+
+                int rowNumber = 1;
+
+                // Filling the XLSX file with data
+                foreach (Session session in sessions)
                 {
-                    DatabaseRelations.LoadRelationStudentExamResult(student, orm.ExamResults);
+                    worksheet.Cells[rowNumber, 1].Value = session.SemesterNumber;
+                    worksheet.Cells[rowNumber, 2].Value = session.Group.Name;
+                    worksheet.Cells[rowNumber, 3].Value = ReportData.GetAverageMarkByGroup(session.ID, session.Group);
 
-                    foreach (ExamResult examResult in student.ExamResults)
-                    {
-                        DatabaseRelations.LoadRelationExamResultExam(examResult, orm.Exams);
-                    }
+                    rowNumber++;
                 }
+
+                // Selects the sort type and sorts
+                if (typeSort == TypeSort.Ascending)
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort);
+                }
+                else
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort, true);
+                }
+
+                MoveRowsDown(worksheet);
+
+                // Setting column names.
+                worksheet.Cells[1, 1].Value = nameof(Session);
+                worksheet.Cells[1, 2].Value = nameof(Group);
+                worksheet.Cells[1, 3].Value = "Average Mark";
+
+                FileInfo file = new FileInfo(filePath);
+                excelPackage.SaveAs(file);
             }
-
-            // Filling the XLSX file with data
-            Workbook workBook = new Workbook();
-            Worksheet workSheet = new Worksheet("SessionReport");
-
-            workSheet.Cells[0, 0] = new Cell(nameof(Session));
-            workSheet.Cells[0, 1] = new Cell(nameof(Group));
-            workSheet.Cells[0, 2] = new Cell("Average Mark");
-
-            int rowNumber = 1;
-
-            foreach (Session session in sessions)
-            {
-                workSheet.Cells[rowNumber, 0] = new Cell(session.SemesterNumber);
-                workSheet.Cells[rowNumber, 1] = new Cell(session.Group.Name);
-                workSheet.Cells[rowNumber, 2] = new Cell(WorkWithGroupTable.GetAverageMarkByGroup(session.ID, session.Group));
-
-                rowNumber++;
-            }
-
-            // Selects the sort type and sorts
-            if (typeSort == TypeSort.Ascending)
-            {
-                workSheet = SortTable.SortByAscending(workSheet, columnToSort);
-            }
-            else
-            {
-                workSheet = SortTable.SortByDescending(workSheet, columnToSort);
-            }
-
-            workBook.Worksheets.Add(workSheet);
-            workBook.Save(filePath);
         }
 
         /// <summary>
@@ -90,65 +80,55 @@ namespace EPAM_Task6.Reports
         /// <param name="columnToSort">Column number to sort</param>
         public static void GenerateAllSessionReports(string filePath, TypeSort typeSort, int columnToSort)
         {
-            int leftBoard = 0;
-            int rightBoard = 4;
+            int leftBoard = 1;
+            int rightBoard = 5;
 
             // Checking for the existence of a column
             IsExistColumn(columnToSort, leftBoard, rightBoard);
             CustomORM orm = CustomORM.Instance;
 
-            // Load relations:  Session_Group,  Group_Student,  Student_ExamResults
-            foreach (Session session in orm.Sessions)
-            {
-                DatabaseRelations.LoadRelationSessionGroup(session, orm.Groups);
-                DatabaseRelations.LoadRelationGroupStudent(session.Group, orm.Students);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-                foreach (Student student in session.Group.Students)
+            using(ExcelPackage excelPackage = new ExcelPackage())
+            {
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("SessionReport");
+
+                int rowNumber = 1;
+
+                // Filling the XLSX file with data
+                foreach (Session session in orm.Sessions)
                 {
-                    DatabaseRelations.LoadRelationStudentExamResult(student, orm.ExamResults);
+                    worksheet.Cells[rowNumber, 1].Value = session.SemesterNumber;
+                    worksheet.Cells[rowNumber, 2].Value = session.Group.Name;
+                    worksheet.Cells[rowNumber, 3].Value = ReportData.GetAverageMarkByGroup(session.ID, session.Group);
+                    worksheet.Cells[rowNumber, 4].Value = ReportData.GetMaxMarkByGroup(session.ID, session.Group);
+                    worksheet.Cells[rowNumber, 5].Value = ReportData.GetMinMarkByGroup(session.ID, session.Group);
 
-                    foreach (ExamResult examResult in student.ExamResults)
-                    {
-                        DatabaseRelations.LoadRelationExamResultExam(examResult, orm.Exams);
-                    }
+                    rowNumber++;
                 }
+
+                // Selects the sort type and sorts
+                if (typeSort == TypeSort.Ascending)
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort);
+                }
+                else
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort, true);
+                }
+
+                MoveRowsDown(worksheet);
+
+                // Setting column names.
+                worksheet.Cells[1, 1].Value = nameof(Session);
+                worksheet.Cells[1, 2].Value = nameof(Group);
+                worksheet.Cells[1, 3].Value = "Average Mark";
+                worksheet.Cells[1, 4].Value = "Max Mark";
+                worksheet.Cells[1, 5].Value = "Min Mark";
+
+                FileInfo file = new FileInfo(filePath);
+                excelPackage.SaveAs(file);
             }
-
-            // Filling the XLSX file with data
-            Workbook workBook = new Workbook();
-            Worksheet workSheet = new Worksheet("SessionReport");
-
-            workSheet.Cells[0, 0] = new Cell(nameof(Session));
-            workSheet.Cells[0, 1] = new Cell(nameof(Group));
-            workSheet.Cells[0, 2] = new Cell("Average Mark");
-            workSheet.Cells[0, 3] = new Cell("Max Mark");
-            workSheet.Cells[0, 4] = new Cell("Min Mark");
-
-            int rowNumber = 1;
-
-            foreach (Session session in orm.Sessions)
-            {
-                workSheet.Cells[rowNumber, 0] = new Cell(session.SemesterNumber);
-                workSheet.Cells[rowNumber, 1] = new Cell(session.Group.Name);
-                workSheet.Cells[rowNumber, 2] = new Cell(WorkWithGroupTable.GetAverageMarkByGroup(session.ID, session.Group));
-                workSheet.Cells[rowNumber, 3] = new Cell(WorkWithGroupTable.GetMaxMarkByGroup(session.ID, session.Group));
-                workSheet.Cells[rowNumber, 4] = new Cell(WorkWithGroupTable.GetMinMarkByGroup(session.ID, session.Group));
-
-                rowNumber++;
-            }
-
-            // Selects the sort type and sorts
-            if (typeSort == TypeSort.Ascending)
-            {
-                workSheet = SortTable.SortByAscending(workSheet, columnToSort);
-            }
-            else
-            {
-                workSheet = SortTable.SortByDescending(workSheet, columnToSort);
-            }
-
-            workBook.Worksheets.Add(workSheet);
-            workBook.Save(filePath);
         }
 
         /// <summary>
@@ -160,55 +140,53 @@ namespace EPAM_Task6.Reports
         /// <param name="columnToSort">Column number to sort</param>
         public static void GenerateBadStudentsListByGroup(string groupName, string filePath, TypeSort typeSort, int columnToSort)
         {
-            int leftBoard = 0;
-            int rightBoard = 1;
+            int leftBoard = 1;
+            int rightBoard = 2;
 
             // Checking for the existence of a column
             IsExistColumn(columnToSort, leftBoard, rightBoard);
 
             CustomORM orm = CustomORM.Instance;
-            Group group = orm.Groups.First(obj => obj.Name == groupName);
+            Group group = orm.Groups.Where(obj => obj.Name == groupName).First();
 
-            // Load relations:  Group_Student,  Student_ExamResults
-            DatabaseRelations.LoadRelationGroupStudent(group, orm.Students);
+            List<Student> badStudentList = ReportData.GetBadStudentList(group.Students);
 
-            foreach (Student student in group.Students)
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (ExcelPackage excelPackage = new ExcelPackage())
             {
-                DatabaseRelations.LoadRelationStudentExamResult(student, orm.ExamResults);
-                DatabaseRelations.LoadRelationStudentGroup(student, orm.Groups);
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("SessionReport");
+
+                int rowNumber = 1;
+
+                // Filling the XLSX file with data
+                foreach (Student student in badStudentList)
+                {
+                    worksheet.Cells[rowNumber, 1].Value = student.Group.Name;
+                    worksheet.Cells[rowNumber, 2].Value = student.FullName;
+
+                    rowNumber++;
+                }
+
+                // Selects the sort type and sorts
+                if (typeSort == TypeSort.Ascending)
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort);
+                }
+                else
+                {
+                    worksheet.Cells["A:C"].Sort(columnToSort, true);
+                }
+
+                MoveRowsDown(worksheet);
+
+                // Setting column names.
+                worksheet.Cells[1, 1].Value = nameof(Group);
+                worksheet.Cells[1, 2].Value = nameof(Student);
+
+                FileInfo file = new FileInfo(filePath);
+                excelPackage.SaveAs(file);
             }
-
-            List<Student> badStudentList =  WorkWithStudentTable.GetBadStudentList(group.Students);
-
-            // Filling the XLSX file with data
-            Workbook workBook = new Workbook();
-            Worksheet workSheet = new Worksheet("SessionReport");
-
-            workSheet.Cells[0, 0] = new Cell(nameof(Group));
-            workSheet.Cells[0, 1] = new Cell(nameof(Student));
-
-            int rowNumber = 1;
-
-            foreach (Student student in badStudentList)
-            {
-                workSheet.Cells[rowNumber, 0] = new Cell(student.Group.Name);
-                workSheet.Cells[rowNumber, 1] = new Cell(student.FullName);
-
-                rowNumber++;
-            }
-
-            // Selects the sort type and sorts
-            if (typeSort == TypeSort.Ascending)
-            {
-                workSheet = SortTable.SortByAscending(workSheet, columnToSort);
-            }
-            else
-            {
-                workSheet = SortTable.SortByDescending(workSheet, columnToSort);
-            }
-
-            workBook.Worksheets.Add(workSheet);
-            workBook.Save(filePath);
         }
 
         /// <summary>
@@ -222,6 +200,21 @@ namespace EPAM_Task6.Reports
             if ((columnNumber < leftBoard) || (columnNumber > rightBoard))
             {
                 throw new ColumnNumberException("This column is not exist.");
+            }
+        }
+
+        /// <summary>
+        /// The method shifts the rows in the table one row down.
+        /// </summary>
+        /// <param name="worksheet">Table</param>
+        private static void MoveRowsDown(ExcelWorksheet worksheet)
+        {
+            for (int i = worksheet.Dimension.Rows; i > 0; i--)
+            {
+                for (int j = 1; j <= worksheet.Dimension.Columns; j++)
+                {
+                    worksheet.Cells[i + 1, j].Value = worksheet.Cells[i, j].Value;
+                }
             }
         }
     }

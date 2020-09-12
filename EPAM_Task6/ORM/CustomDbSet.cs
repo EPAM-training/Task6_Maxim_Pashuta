@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using EPAM_Task6.CRUD;
-using EPAM_Task6.DatabaseWork;
 using EPAM_Task6.CustomExceptions;
+using EPAM_Task6.Creators;
+using System.Reflection;
+using System;
 
 namespace EPAM_Task6.ORM
 {
@@ -32,7 +34,7 @@ namespace EPAM_Task6.ORM
 
             _sqlConnection = sqlConnection;
             _crud = new Crud<T>(_sqlConnection);
-            _listModel = TableReader<T>.ReadTable(_sqlConnection).ToList();
+            _listModel = ReadTable().ToList();
         }
 
         //public void Load(Type typeTable)
@@ -104,5 +106,48 @@ namespace EPAM_Task6.ORM
         public IEnumerator<T> GetEnumerator() => _listModel.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// The method reads a table from a database.
+        /// </summary>
+        /// <param name="sqlConnection"></param>
+        /// <returns></returns>
+        public IEnumerable<T> ReadTable()
+        {
+            _sqlConnection.Open();
+
+            var sqlSelectCommand = $"SELECT * FROM [{typeof(T).Name}]";
+            var sqlCommand = new SqlCommand(sqlSelectCommand, _sqlConnection);
+            SqlDataReader reader = sqlCommand.ExecuteReader();
+
+            var list = new List<T>();
+            var obj = ModelFactory.CreateModel<T>();
+
+            int columnsNumber = reader.FieldCount;
+
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    for (var i = 0; i < columnsNumber; i++)
+                    {
+                        string fieldName = reader.GetName(i);
+                        PropertyInfo propInfo = obj.GetType().GetProperty(fieldName);
+
+                        if (!(reader.GetValue(i) is DBNull))
+                        {
+                            propInfo?.SetValue(obj, reader.GetValue(i));
+                        }
+                    }
+
+                    list.Add((T)obj);
+                    obj = ModelFactory.CreateModel(typeof(T).FullName);
+                }
+            }
+
+            _sqlConnection.Close();
+
+            return list;
+        }
     }
 }

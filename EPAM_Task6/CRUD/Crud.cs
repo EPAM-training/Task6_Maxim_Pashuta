@@ -100,7 +100,7 @@ namespace EPAM_Task6.CRUD
         /// <summary>
         /// The method deletes an object from a database table.
         /// </summary>
-        /// <param name="obj">Object that inherits the class BaseModel</param>
+        /// <param name="id">ID</param>
         public void Delete(int id)
         {
             string sqlDeleteCommand = $"DELETE FROM [{typeof(T).Name}] WHERE ID = @ID;";

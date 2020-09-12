@@ -15,7 +15,7 @@ namespace EPAM_Task6.ORM
         /// </summary>
         public CustomDbContext()
         {
-            _connectionString = @"Data Source=USER-PC\ACCELERATOR;Initial Catalog=Session_DB;Integrated Security=True";
+            _connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Task6_DB;Integrated Security=True";
             _sqlConnection = new SqlConnection(_connectionString);
         }
     }

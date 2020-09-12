@@ -39,6 +39,8 @@ namespace EPAM_Task6.ORM
             Disciplines = new CustomDbSet<Discipline>(_sqlConnection);
             ExamResults = new CustomDbSet<ExamResult>(_sqlConnection);
             CreditResults = new CustomDbSet<CreditResult>(_sqlConnection);
+
+            LoadRelations();
         }
 
         public static CustomORM Instance
@@ -52,6 +54,21 @@ namespace EPAM_Task6.ORM
 
                 return _instance;
             }
+        }
+
+        /// <summary>
+        /// The method loads all relationships between tables.
+        /// </summary>
+        private void LoadRelations()
+        {
+            DatabaseRelations.LoadCreditRelations(Credits, CreditResults, Sessions, Disciplines);
+            DatabaseRelations.LoadCreditResultRelations(CreditResults, Credits, Students);
+            DatabaseRelations.LoadDisciplineRelations(Disciplines, Exams, Credits);
+            DatabaseRelations.LoadExamRelations(Exams, ExamResults, Sessions, Disciplines);
+            DatabaseRelations.LoadExamResultRelations(ExamResults, Exams, Students);
+            DatabaseRelations.LoadGroupRelations(Groups, Students, Sessions);
+            DatabaseRelations.LoadSessionRelations(Sessions, Groups, Exams, Credits);
+            DatabaseRelations.LoadStudentRelations(Students, ExamResults, CreditResults, Groups);
         }
     }
 }

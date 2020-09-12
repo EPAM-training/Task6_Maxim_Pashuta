@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EPAM_Task6.Tables
 {
@@ -16,6 +17,8 @@ namespace EPAM_Task6.Tables
         public Session Session { get; set; }
 
         public Discipline Discipline { get; set; }
+
+        public List<ExamResult> ExamResults { get; set; }
 
         /// <summary>
         /// Method for equal the current object with the specified object.
