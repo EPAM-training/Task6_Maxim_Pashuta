@@ -42,9 +42,9 @@ namespace EPAM_Task6_Test.ReportTest
             Session session = _orm.Sessions.First();
 
             double result = ReportData.GetAverageMarkByGroup(session.ID, session.Group);
-            double actualResult = 5;
+            double actualResult = 4.888888;
 
-            Assert.AreEqual(result, actualResult);
+            Assert.AreEqual(result, actualResult, 0.000001);
         }
 
         /// <summary>

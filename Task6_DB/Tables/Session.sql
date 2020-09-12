@@ -2,5 +2,5 @@
 (
 	[ID] INT PRIMARY KEY NOT NULL,
 	[GroupID] INT NULL,
-	[SesmesterNumber] INT NOT NULL
+	[SemesterNumber] INT NOT NULL
 )
