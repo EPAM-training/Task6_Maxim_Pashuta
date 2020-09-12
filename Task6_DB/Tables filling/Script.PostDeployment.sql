@@ -2,7 +2,7 @@
 VALUES (1, N'IP-22'),
        (2, N'IP-21')
 
-INSERT [dbo].[Session] ([ID], [GroupID], [SesmesterNumber]) 
+INSERT [dbo].[Session] ([ID], [GroupID], [SemesterNumber]) 
 VALUES (1, 1, 1),
        (2, 1, 2),
        (3, 2, 1),
