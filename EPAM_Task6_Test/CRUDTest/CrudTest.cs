@@ -19,7 +19,7 @@ namespace EPAM_Task6_Test.CRUDTest
         [SetUp]
         public void Setup()
         {
-            string connectionString = @"Data Source=USER-PC\ACCELERATOR;Initial Catalog=Session_DB;Integrated Security=True";
+            string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Task6_DB;Integrated Security=True";
             _sqlConnection = new SqlConnection(connectionString);
         }
 
@@ -68,6 +68,25 @@ namespace EPAM_Task6_Test.CRUDTest
         }
 
         /// <summary>
+        /// The method tests the method Insert when type is abstract.
+        /// </summary>
+        [Test]
+        public void Insert_WhenTypeIsAbstract_ThrowsException()
+        {
+            Crud<BaseModel> crud = new Crud<BaseModel>(_sqlConnection);
+            var student = new Student()
+            {
+                ID = 10,
+                FullName = "Dfsdf Lidia Dmitrievna",
+                Gender = "Woman",
+                Birthdate = new DateTime(2000, 6, 6),
+                GroupID = 1
+            };
+
+            Assert.That(() => crud.Insert(student), Throws.Exception);
+        }
+
+        /// <summary>
         /// The method tests the method Update.
         /// </summary>
         [Test]
@@ -88,6 +107,25 @@ namespace EPAM_Task6_Test.CRUDTest
             Student result = crud.Read(student.ID);
 
             Assert.AreEqual(result, student);
+        }
+
+        /// <summary>
+        /// The method tests the method Update when type is abstract.
+        /// </summary>
+        [Test]
+        public void Update_WhenTypeIsAbstract_ThrowsException()
+        {
+            Crud<BaseModel> crud = new Crud<BaseModel>(_sqlConnection);
+            var student = new Student()
+            {
+                ID = 3,
+                FullName = "Dfsdf Lidia Dmitrievna",
+                Gender = "Woman",
+                Birthdate = new DateTime(2000, 6, 6),
+                GroupID = 1
+            };
+
+            Assert.That(() => crud.Update(student.ID, student), Throws.Exception);
         }
 
         /// <summary>
@@ -113,6 +151,18 @@ namespace EPAM_Task6_Test.CRUDTest
             Student result = crud.Read(student.ID);
 
             Assert.IsNull(result);
+        }
+
+        /// <summary>
+        /// The method tests the method Delete when type is abstract.
+        /// </summary>
+        [Test]
+        public void Delete_WhenTypeIsAbstract_ThrowsException()
+        {
+            Crud<BaseModel> crud = new Crud<BaseModel>(_sqlConnection);
+            int id = 3;
+
+            Assert.That(() => crud.Delete(id), Throws.Exception);
         }
 
         /// <summary>
@@ -149,6 +199,18 @@ namespace EPAM_Task6_Test.CRUDTest
             Student result = crud.Read(id);
 
             Assert.IsNull(result);
+        }
+
+        /// <summary>
+        /// The method tests the method Read when type is abstract.
+        /// </summary>
+        [Test]
+        public void Read_WhenTypeIsAbstract_ThrowsException()
+        {
+            Crud<BaseModel> crud = new Crud<BaseModel>(_sqlConnection);
+            int id = 3;
+
+            Assert.That(() => crud.Read(id), Throws.Exception);
         }
     }
 }

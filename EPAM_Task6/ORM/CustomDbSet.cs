@@ -37,34 +37,6 @@ namespace EPAM_Task6.ORM
             _listModel = ReadTable().ToList();
         }
 
-        //public void Load(Type typeTable)
-        //{
-        //    string propertyRelationName = $"{typeTable.Name}ID";
-        //    PropertyInfo property = typeof(T).GetProperty(propertyRelationName);
-
-        //    if (property == null)
-        //    {
-        //        throw new ArgumentException();
-        //    }
-
-        //    List<BaseModel> baseModels = ReadTable(typeTable).ToList();
-
-        //    foreach (T model in _listModel)
-        //    {
-        //        foreach (BaseModel baseModel in baseModels)
-        //        {
-        //            int idModel = (int)typeof(T).GetProperty(propertyRelationName).GetValue(model);
-        //            int idRelationModel = (int)baseModel.GetType().GetProperty(nameof(BaseModel.ID)).GetValue(baseModel);
-
-        //            if (idModel == idRelationModel)
-        //            {
-        //                typeof(T).GetProperty(typeTable.Name).SetValue(model, baseModel);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
-
         /// <summary>
         /// The method adds an object to the objects collection and to the table.
         /// </summary>
@@ -79,10 +51,12 @@ namespace EPAM_Task6.ORM
         /// The method deletes an object from the objects collection and from the table.
         /// </summary>
         /// <param name="index"></param>
-        public void Delete(int index)
+        public void Delete(int id)
         {
-            _crud.Delete(_listModel[index].ID);
-            _listModel.RemoveAt(index);
+            _crud.Delete(id);
+
+            var deletedModel = _listModel.FirstOrDefault(obj => obj.ID == id);
+            _listModel.Remove(deletedModel);
         }
 
         /// <summary>
@@ -90,10 +64,12 @@ namespace EPAM_Task6.ORM
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void Update(int index, T item)
+        public void Update(int id, T item)
         {
-            _crud.Update(_listModel[index].ID, item);
-            _listModel[index] = item;
+            _crud.Update(id, item);
+
+            var updatedModel = _listModel.FirstOrDefault(obj => obj.ID == id);
+            updatedModel = item;
         }
 
         /// <summary>
@@ -101,7 +77,7 @@ namespace EPAM_Task6.ORM
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public T Read(int id) =>_listModel.First(obj => obj.ID == id);
+        public T Read(int id) =>_listModel.FirstOrDefault(obj => obj.ID == id);
 
         public IEnumerator<T> GetEnumerator() => _listModel.GetEnumerator();
 
